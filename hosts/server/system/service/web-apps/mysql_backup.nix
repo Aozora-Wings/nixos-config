@@ -1,5 +1,8 @@
-{ config, lib, pkgs, install-config, unstable, ... }: {
-  myWebsites = {
+{ config, lib, pkgs, install-config, unstable, ... }: 
+let
+  hasDecryptedSecret = builtins.pathExists "/run/agenix/azure-token";
+in{
+  myWebsites = lib.mkIf hasDecryptedSecret {
     backup_mysql = {
       domain = "backup_mysql";
       enable = true;
