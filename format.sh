@@ -1,0 +1,1 @@
+find . -name "*.nix" -exec echo "Formatting {}" \; -exec nix fmt {} \;

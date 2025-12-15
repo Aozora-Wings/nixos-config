@@ -1,0 +1,8 @@
+mount -o compress=zstd,subvol=root /dev/nvme0n1p2 /mnt
+mount -o compress=zstd,subvol=home /dev/nvme0n1p2 /mnt/home
+mount -o compress=zstd,subvol=chengxu /dev/nvme0n1p2 /mnt/chengxu
+mount -o compress=zstd,subvol=create /dev/nvme0n1p2 /mnt/create
+mount -o compress=zstd,subvol=game /dev/nvme0n1p2 /mnt/game
+mount -o compress=zstd,subvol=swap /dev/nvme0n1p2 /mnt/swap
+mount -o compress=zstd,noatime,subvol=nix /dev/nvme0n1p2 /mnt/nix
+mount /dev/nvme0n1p1 /mnt/boot
