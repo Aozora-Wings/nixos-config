@@ -3,6 +3,6 @@
 
 {
   imports = [
-    ./ntfsplus.nix
+   ./ntfsplus.nix
   ];
 }

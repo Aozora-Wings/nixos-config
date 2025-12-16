@@ -39,7 +39,8 @@ in
   # Boot configuration
   boot = {
     # Use Zen kernel for better desktop performance
-    kernelPackages = pkgs.linuxPackages_zen;
+    #kernelPackages = pkgs.linuxKernel.kernels.linux_lqx;
+    #kernelPackages = pkgs.linuxPackages_zen;
 
     # GRUB bootloader configuration with theme
     loader = {
