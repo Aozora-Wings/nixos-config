@@ -7,7 +7,7 @@
   # };
   myWebsitesAcme = {
     acceptTerms = true;
-    defaultsEmail = "wt@qkzy.net";
+    defaultsEmail = install-config.useremail;
     server = "https://acme-v02.api.letsencrypt.org/directory"; # 指定使用Let's Encrypt生产服务器
   };
   imports = [
