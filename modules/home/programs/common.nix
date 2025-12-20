@@ -181,6 +181,14 @@ in
           userKnownHostsFile = "~/.ssh/known_hosts";
           identityAgent = "/home/wt/.bitwarden-ssh-agent.sock";
         };
+        "aozorawings" = {
+          hostname = "aozorawings.local";
+          user = "wt";
+        };
+        "aozorawings-gtx1660" = {
+          hostname = "aozorawings-gtx1660.local";
+          user = "wt";
+        };
         "arch" = {
           hostname = "192.168.31.171";
           user = "wt";
