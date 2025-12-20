@@ -9,8 +9,21 @@ let
 in
 {
 
+  # Configure NUR (Nix User Repository)
+  nixpkgs.config.packageOverrides = pkgs: {
+    nur = import inputs.nur {
+      inherit pkgs;
+      # Optional: Override specific NUR repositories
+      repoOverrides = {
+        # Example overrides:
+        # mic92 = "github:mic92/nur-packages";
+        # linyinfeng = "github:linyinfeng/nur-packages";
+      };
+    };
+  };
   imports =
     [
+    ../Common-Service
     ../../modules/system
     ./service.nix
       #../../modules/i3.nix

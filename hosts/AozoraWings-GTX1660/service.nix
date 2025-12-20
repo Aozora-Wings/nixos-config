@@ -9,6 +9,5 @@ let
 in
 {
   imports = [
-    ../Common-Service
   ];
  }
