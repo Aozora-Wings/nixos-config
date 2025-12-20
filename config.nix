@@ -92,59 +92,51 @@ let def_ports = import ./def_ports.nix; in {
   };
   mpd = {
     enable = true;
-    musicDirectory = "/create/115open/音乐/";
-    playlistDirectory = "/home/public/mpd/Playlists";
+    startWhenNeeded = true;
     user = "mpd";
     group = "audio";
-    dbFile = "/home/public/mpd/mpd.db";
     dataDir = "/home/public/mpd";
-    network = {
-      listenAddress = "any";
-      port = def_ports.mpd.api;
-    };
-    startWhenNeeded = true;
+    
+    # 启用防火墙端口
+    openFirewall = true;
+    
+    # 所有配置现在都在 settings 中
     settings = {
+      music_directory = "/create/115open/音乐/";
+      playlist_directory = "/home/public/mpd/Playlists";
+      db_file = "/home/public/mpd/mpd.db";
       filesystem_charset = "UTF-8";
       log_file = "/home/public/mpd/log";
-      audio_output =[
+      
+      # 网络配置
+      bind_to_address = "0.0.0.0";  # 原先是 "any"，建议使用具体的地址
+      port = def_ports.mpd.api;
+      
+      # 音频输出配置
+      audio_output = [
         {
-              type="alsa";
-              name="Shan Ling H5 Pro";
-              device="hw:CARD=H5,DEV=0"; # 这里填你的DAC地址2,0
-              mixer_type="hardware";
-              auto_resample="no";
-              auto_channels="no";
-              auto_format="no";
-             dop="yes";
-      }
-      {
-      type="httpd";
-      name="HTTP Streams";
-      always_on="yes";
-      encoder="flac";        # optional, vorbis or lame
-      oggchaining="yes";
-      compression="5";
-      port="${def_ports.mpd.http}";
-      # bind_to_address "0.0.0.0";     # optional, IPv4 or IPv6
-      #quality="5.0";         # do not define if bitrate is defined
-      #bitrate="192";         # do not define if quality is defined
-      #format="44100:16:2";
-      max_clients="0";           # optional 0=no limit
-      }
-      ]; 
+          type = "alsa";
+          name = "Shan Ling H5 Pro";
+          device = "hw:CARD=H5,DEV=0";
+          mixer_type = "hardware";
+          auto_resample = "no";
+          auto_channels = "no";
+          auto_format = "no";
+          dop = "yes";
+        }
+        {
+          type = "httpd";
+          name = "HTTP Streams";
+          always_on = "yes";
+          encoder = "flac";
+          oggchaining = "yes";
+          compression = "5";
+          port = "${def_ports.mpd.http}";
+          bind_to_address = "0.0.0.0";
+          max_clients = "0";
+        }
+      ];
     };
-
-      # audio_output {
-      #         type            "pipewire"
-      #         target          "alsa_output.usb-Shanling_Shanling_H5-00.analog-stereo.2"
-      #         dsd             "yes"
-      #         name            "PipeWire Sound Server"
-      # }
-
-      # audio_output {
-      #         type "pulse"
-      #         name "pulse audio"
-      # }
   };
   starship = {
     enable = true;

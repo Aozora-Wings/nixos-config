@@ -27,7 +27,7 @@ in
     ../Common-Service
     ../../modules/system
     ./service
-    ./kernel_patch
+    ../kernel_patch
 
     # Conditionally import hardware configuration based on run mode
   ] ++ (if run-mode == "install" then

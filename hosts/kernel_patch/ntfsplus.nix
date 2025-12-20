@@ -4,12 +4,12 @@
 let
   # 在这里选择你要使用的内核
   # 选项1: 使用 linux_lqx 内核
-  # targetKernel = pkgs.linuxKernel.kernels.linux_lqx;
-  # targetKernelPackages = pkgs.linuxKernel.packages.linux_lqx;
+   targetKernel = pkgs.linuxKernel.kernels.linux_lqx;
+   targetKernelPackages = pkgs.linuxKernel.packages.linux_lqx;
   
   # 选项2: 使用 linux_zen 内核
-  targetKernel = pkgs.linuxKernel.kernels.linux_zen;
-  targetKernelPackages = pkgs.linuxPackages_zen;
+  #targetKernel = pkgs.linuxKernel.kernels.linux_zen;
+ #targetKernelPackages = pkgs.linuxPackages_zen;
   
   # 选项3: 使用当前系统的内核
   # targetKernel = config.boot.kernelPackages.kernel;
@@ -26,13 +26,13 @@ let
 
   ntfsplusPackage = pkgs.stdenv.mkDerivation rec {
     pname = "ntfsplus-kernel-module";
-    version = "2025.11.27.r0.c21e17241";
+    version = "2025.10.24.r8.9254233d7";
 
     src = pkgs.fetchFromGitHub {
       owner = "shadichy";
       repo = "ntfsplus-dkms";
-      rev = "85e688844bbd401338b33d4eea22299ed68b1ff0";
-      sha256 = "";
+      rev = "2c2cad2b2bd33340dbfa6f023ddcd38328143df7";
+      sha256 = "sha256-fBLV6grNocpI/lQJVBPJVW93CoLNQeYO3xRK4DGHIEk=";
     };
 
     nativeBuildInputs = with pkgs; [
