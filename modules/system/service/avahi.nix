@@ -7,8 +7,7 @@
       nssmdns6 = true;
       publish = {
         enable = true;
-        
-      }
+      };
     };
     
     };
