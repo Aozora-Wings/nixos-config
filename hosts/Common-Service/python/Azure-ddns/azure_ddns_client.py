@@ -209,7 +209,7 @@ class AzureDDNSClient:
                     self.record_set,
                     self.record_type,
                     {
-                        "ttl": 3600,
+                        "ttl": 60,
                         "arecords": [{"ipv4_address": ip_address}]
                     }
                 )
@@ -220,7 +220,7 @@ class AzureDDNSClient:
                     self.record_set,
                     self.record_type,
                     {
-                        "ttl": 3600,
+                        "ttl": 60,
                         "aaaarecords": [{"ipv6_address": ip_address}]
                     }
                 )
