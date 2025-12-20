@@ -65,7 +65,7 @@ in
       flake = "/developer/nixos-config";
     };
   };
-  iports = [
+  imports = [
     ./vscode
   ];
 }
