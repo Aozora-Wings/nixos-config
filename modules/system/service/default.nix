@@ -19,6 +19,7 @@
         ./pipewire.nix
         ./udev.nix
         ./hardware.nix
+        
     ];
 
     #plasma 6 enable orca
