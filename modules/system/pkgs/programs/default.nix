@@ -12,5 +12,6 @@
         ./dconf.nix
         ./noctalia.nix
         ./vscode
+        ./wechat.nix
     ];
 }

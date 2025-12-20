@@ -47,9 +47,9 @@
       flake = false;
     };
     
-    wechat-auto-update = {
-      url = "github:Aozora-Wings/wechat-auto-update";
-      inputs.nixpkgs.follows = "nixpkgs";
+    wechat-monitor = {
+      url = "github:Aozora-Wings/wechat-linux-monitor";
+      flake = false;
     };
   };
 
@@ -61,6 +61,7 @@
     , connecttool-qt
     , agenix
     , mySoftware
+    , wechat-monitor
     , ...
     }:
     let
@@ -119,7 +120,7 @@
       # 定义要传递的共享参数
       sharedArgs = {
         inherit install-config unstable stable MySecrets flakeSoftware hyprlandConfigPath;
-        inherit inputs secrets_file mySoftware parseConfigFile;
+        inherit inputs secrets_file mySoftware parseConfigFile wechat-monitor;
       };
 
       # 为所有系统定义 formatter

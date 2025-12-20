@@ -375,7 +375,8 @@
         "nixpkgs-stable": "nixpkgs-stable",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "noctalia": "noctalia",
-        "nur": "nur"
+        "nur": "nur",
+        "wechat-monitor": "wechat-monitor"
       }
     },
     "systems": {
@@ -390,6 +391,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "wechat-monitor": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1766213696,
+        "narHash": "sha256-9jj2QN3vtxBO+CLj2uwQQNAbPOfln4Syj8PHTGG0UNM=",
+        "owner": "Aozora-Wings",
+        "repo": "wechat-linux-monitor",
+        "rev": "21cf9ec4d39928e85e8457805a3cb3d6f3903b68",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Aozora-Wings",
+        "repo": "wechat-linux-monitor",
         "type": "github"
       }
     }
