@@ -114,6 +114,6 @@
     #flakeSoftware.connecttool-qt
     podman
     #inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default
-    wechat
+    #wechat
   ];
 }

@@ -46,6 +46,11 @@
       url = "github:Aozora-Wings/my-nixos-app/main";
       flake = false;
     };
+    
+    wechat-auto-update = {
+      url = "github:Aozora-Wings/wechat-auto-update";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
