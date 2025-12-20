@@ -25,6 +25,7 @@ in
     [
     ../Common-Service
     ../../modules/system
+    ./kernel_patch
     ./service.nix
       #../../modules/i3.nix
 
@@ -35,7 +36,7 @@ in
 
   # Bootloader.
   boot = {
-    kernelPackages = pkgs.linuxPackages_zen;
+    #kernelPackages = pkgs.linuxPackages_zen;
     loader = {
       grub = {
         enable = true;

@@ -103,20 +103,36 @@ let def_ports = import ./def_ports.nix; in {
       port = def_ports.mpd.api;
     };
     startWhenNeeded = true;
-    extraConfig = ''
-            log_file			"/home/public/mpd/log"
-      audio_output {
-              enabled         "yes"
-              type            "alsa"
-              name            "Shan Ling H5 Pro"
-              device          "hw:CARD=H5,DEV=0" # 这里填你的DAC地址2,0
-              mixer_type      "hardware"
-              auto_resample   "no"
-              auto_channels   "no"
-              auto_format     "no"
-             dop             "yes"
-      # 需要dop输出就加上上面一行
+    settings = {
+      filesystem_charset = "UTF-8";
+      log_file = "/home/public/mpd/log";
+      audio_output =[
+        {
+              type="alsa";
+              name="Shan Ling H5 Pro";
+              device="hw:CARD=H5,DEV=0"; # 这里填你的DAC地址2,0
+              mixer_type="hardware";
+              auto_resample="no";
+              auto_channels="no";
+              auto_format="no";
+             dop="yes";
       }
+      {
+      type="httpd";
+      name="HTTP Streams";
+      always_on="yes";
+      encoder="flac";        # optional, vorbis or lame
+      oggchaining="yes";
+      compression="5";
+      port="${def_ports.mpd.http}";
+      # bind_to_address "0.0.0.0";     # optional, IPv4 or IPv6
+      #quality="5.0";         # do not define if bitrate is defined
+      #bitrate="192";         # do not define if quality is defined
+      #format="44100:16:2";
+      max_clients="0";           # optional 0=no limit
+      }
+      ]; 
+    };
 
       # audio_output {
       #         type            "pipewire"
@@ -129,22 +145,6 @@ let def_ports = import ./def_ports.nix; in {
       #         type "pulse"
       #         name "pulse audio"
       # }
-      audio_output {
-      type            "httpd"
-      name            "HTTP Streams"
-      always_on       "yes"
-      encoder         "flac"        # optional, vorbis or lame
-      oggchaining "yes"
-      compression "5"
-      port	          "${def_ports.mpd.http}"
-      # bind_to_address "0.0.0.0"     # optional, IPv4 or IPv6
-      #quality         "5.0"         # do not define if bitrate is defined
-      #bitrate         "192"         # do not define if quality is defined
-      #format          "44100:16:2"
-      max_clients     "0"           # optional 0=no limit
-      }
-      filesystem_charset "UTF-8"
-    '';
   };
   starship = {
     enable = true;

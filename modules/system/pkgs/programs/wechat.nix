@@ -1,77 +1,76 @@
-# ./wechat.nix
-{ pkgs, lib, install-config, unstable, stable, flakeSoftware, hyprlandConfigPath, wechat-monitor, ... }:
+# ./wechat-new-simple.nix
+{ pkgs, lib, wechat-monitor, ... }:
 
 let
-  # 从 monitor 仓库读取最新版本
+  # 获取版本信息
   version = lib.removeSuffix "\n" (builtins.readFile "${wechat-monitor}/data/last_release_version.txt");
-  
-  # 读取哈希数据
   versionsData = builtins.fromJSON (builtins.readFile "${wechat-monitor}/data/versions.json");
+  versionEntry = builtins.head (lib.filter (v: v.version == version) versionsData.versions);
   
-  # 查找对应版本的条目
-  versionEntry = let
-    filtered = lib.filter (v: v.version == version) versionsData.versions;
-  in
-    if filtered != [] then builtins.head filtered
-    else throw "Version ${version} not found in versions.json";
+  pname = "wechat-new";
   
-  # 根据架构和包类型获取哈希
-  getHash = arch: pkgType: versionEntry.files.${arch}.${pkgType}.sha256;
+  # 提取 AppImage 内容
+  appimageContents = pkgs.appimageTools.extract {
+    inherit pname version;
+    src = let
+      system = pkgs.stdenv.hostPlatform.system;
+      arch = if system == "x86_64-linux" then "x86"
+            else if system == "aarch64-linux" then "arm64"
+            else throw "Unsupported system: ${system}";
+      filename = "wechat_linux_${arch}_${version}.appimage";
+    in pkgs.fetchurl {
+      url = "https://github.com/Aozora-Wings/wechat-linux-monitor/releases/download/v${version}/${filename}";
+      sha256 = versionEntry.files.${arch}.appimage.sha256;
+    };
+    
+    postExtract = ''
+      # 修复 libtiff 依赖（原仓库的修复）
+      if [ -f "$out/opt/wechat/wechat" ]; then
+        patchelf --replace-needed libtiff.so.5 libtiff.so "$out/opt/wechat/wechat"
+      fi
+    '';
+  };
   
-  # 创建 overlay
-  wechatOverlay = final: prev: {
-    wechat = prev.wechat.overrideAttrs (oldAttrs:
-      # 只覆盖 Linux 版本
-      if prev.stdenvNoCC.hostPlatform.isLinux then
-        let
-          system = prev.stdenvNoCC.hostPlatform.system;
-          arch = if system == "x86_64-linux" then "x86"
-                else if system == "aarch64-linux" then "arm64"
-                else throw "Unsupported Linux system: ${system}";
-          
-          # 使用 AppImage 版本
-          pkgType = "appimage";
-          extension = "appimage";
-          filename = "wechat_linux_${arch}_${version}.${extension}";
-          
-          # 检查架构是否支持
-          supported = arch == "x86" || arch == "arm64";
-        in
-        if supported then
-          {
-            version = version;
-            
-            src = prev.fetchurl {
-              url = "https://github.com/Aozora-Wings/wechat-linux-monitor/releases/download/v${version}/${filename}";
-              sha256 = getHash arch pkgType;
-            };
-            
-            # 保持其他所有属性不变
-          }
-        else
-          oldAttrs
-      else
-        oldAttrs  # macOS 保持不变
-    );
+  # 包装为可执行文件
+  wechat_new = pkgs.appimageTools.wrapAppImage {
+    inherit pname version;
+    
+    src = appimageContents;
+    
+    extraInstallCommands = ''
+      # 重命名二进制文件为 wechat_new
+      mv $out/bin/wechat-new $out/bin/wechat_new
+      
+      # 复制并修改桌面文件
+      mkdir -p $out/share/applications
+      cp ${appimageContents}/wechat.desktop $out/share/applications/wechat_new.desktop
+      substituteInPlace $out/share/applications/wechat_new.desktop \
+        --replace "Name=WeChat" "Name=WeChat New" \
+        --replace "Exec=AppRun" "Exec=wechat_new" \
+        --replace "Icon=wechat" "Icon=wechat"
+      
+      # 复制图标
+      mkdir -p $out/share/icons/hicolor/256x256/apps
+      cp ${appimageContents}/wechat.png $out/share/icons/hicolor/256x256/apps/wechat.png
+    '';
+    
+    meta = {
+      description = "WeChat New - Tracking version with automatic updates";
+      homepage = "https://weixin.qq.com/";
+      license = lib.licenses.unfree;
+      platforms = [ "x86_64-linux" "aarch64-linux" ];
+      mainProgram = "wechat_new";
+    };
   };
 in
 {
-  # 方式1: 使用 nixpkgs.overlays（推荐）
-  #nixpkgs.overlays = [ wechatOverlay ];
-  
-  # 方式2: 如果你需要更精确的控制，可以使用这种方式
-  environment.systemPackages = [
-    (pkgs.extend wechatOverlay).wechat
+  nixpkgs.overlays = [
+    (final: prev: {
+      wechat_new = wechat_new;
+    })
   ];
   
-  # 添加调试信息（可选）
-   system.activationScripts.debugWechat = {
-     text = ''
-       echo "=== WeChat Debug Info ==="
-       echo "Version from monitor: ${version}"
-       echo "System architecture: ${pkgs.stdenvNoCC.hostPlatform.system}"
-       echo "Supported arch in data: ${toString (builtins.attrNames versionEntry.files)}"
-     '';
-     deps = [];
-   };
+  environment.systemPackages = with pkgs; [
+    wechat_new
+  ];
 }
