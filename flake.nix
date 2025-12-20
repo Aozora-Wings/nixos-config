@@ -74,6 +74,7 @@
       MySecrets = import ./secrets/wt;
       secrets_file = {
         azure = "${toString ./secrets/azure.age}";
+        web = "${toString ./secrets/web.age}";
       };
       hyprlandConfigPath = "${toString ./config/hyprland.conf}";
       # 创建 unstable pkgs 实例
@@ -94,8 +95,7 @@
     parseLine = line:
       let
         # 使用正则表达式匹配 "key: value" 格式，忽略前后空格
-        matches = builtins.match "([^:[:space:]]+)[[:space:]]*:[[:space:]]*(.*)" line;
-      in
+        matches = builtins.match "([^:[:space:]]+)[[:space:]]*:[[:space:]]*\"?([^\"[:space:]]+)\"?" line;      in
       if matches != null then
         let
           name = lib.head matches;

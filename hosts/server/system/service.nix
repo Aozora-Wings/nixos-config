@@ -53,6 +53,10 @@ in
       file = secrets_file.azure;
       owner = install-config.username;
     };
+    secrets."web" = {
+      file = secrets_file.web;
+      owner = install-config.username;
+    };
   };
 
 }

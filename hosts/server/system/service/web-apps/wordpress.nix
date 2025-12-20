@@ -1,4 +1,4 @@
-{ config, lib, pkgs, install-config, unstable,mapPort, ... }: let
+{ config, lib, pkgs, install-config, unstable,mapPort,parseConfigFile, ... }: let
   #port = import ../lib/ports.nix { inherit lib install-config; };
   web = parseConfigFile "/run/agenix/web";
   hasDecryptedSecret = builtins.pathExists "/run/agenix/web";
