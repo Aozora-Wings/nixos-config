@@ -25,7 +25,7 @@ in
     [
     ../Common-Service
     ../../modules/system
-    ./kernel_patch
+    ../kernel_patch
     ./service.nix
       #../../modules/i3.nix
 

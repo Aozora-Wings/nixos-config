@@ -26,13 +26,13 @@ let
 
   ntfsplusPackage = pkgs.stdenv.mkDerivation rec {
     pname = "ntfsplus-kernel-module";
-    version = "2025.10.24.r8.9254233d7";
+    version = "2025.11.27.r0.c21e17241";
 
     src = pkgs.fetchFromGitHub {
       owner = "shadichy";
       repo = "ntfsplus-dkms";
-      rev = "2c2cad2b2bd33340dbfa6f023ddcd38328143df7";
-      sha256 = "sha256-fBLV6grNocpI/lQJVBPJVW93CoLNQeYO3xRK4DGHIEk=";
+      rev = "85e688844bbd401338b33d4eea22299ed68b1ff0";
+      sha256 = "";
     };
 
     nativeBuildInputs = with pkgs; [
