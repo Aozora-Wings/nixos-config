@@ -65,13 +65,13 @@ in
   ];
   
   # 添加调试信息（可选）
-  # system.activationScripts.debugWechat = {
-  #   text = ''
-  #     echo "=== WeChat Debug Info ==="
-  #     echo "Version from monitor: ${version}"
-  #     echo "System architecture: ${pkgs.stdenvNoCC.hostPlatform.system}"
-  #     echo "Supported arch in data: ${toString (builtins.attrNames versionEntry.files)}"
-  #   '';
-  #   deps = [];
-  # };
+   system.activationScripts.debugWechat = {
+     text = ''
+       echo "=== WeChat Debug Info ==="
+       echo "Version from monitor: ${version}"
+       echo "System architecture: ${pkgs.stdenvNoCC.hostPlatform.system}"
+       echo "Supported arch in data: ${toString (builtins.attrNames versionEntry.files)}"
+     '';
+     deps = [];
+   };
 }
