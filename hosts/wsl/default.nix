@@ -1,4 +1,4 @@
-{ config, pkgs, install-config, unstable, ... }:
+{ config, pkgs, install-config, unstable,hostName, ... }:
 {
   imports = [
     <nixos-wsl/modules>
@@ -12,7 +12,7 @@
   wsl.enable = true;
   wsl.defaultUser = install-config.username;
   networking = {
-    hostName = install-config.hostname;
+    hostName = hostName;
     networkmanager = {
       enable = true;
     };

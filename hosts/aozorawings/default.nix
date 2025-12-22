@@ -2,7 +2,7 @@
 # your system. Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running 'nixos-help').
 
-{ config, pkgs, install-config, unstable, stable, inputs, ... }:
+{ config, pkgs, install-config, unstable, stable, inputs,hostName, ... }:
 
 let
   # Determine run mode from environment variable
@@ -76,7 +76,7 @@ in
 
   # Network configuration
   networking = {
-    hostName = install-config.hostname;
+    hostName = hostName;
 
     # NetworkManager for network management
     networkmanager = {

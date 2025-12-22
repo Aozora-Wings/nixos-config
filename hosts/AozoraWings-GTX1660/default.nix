@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, install-config, unstable, stable, inputs, ... }:
+{ config, pkgs, install-config, unstable, stable, inputs,hostName, ... }:
 let
 
   run-mode = builtins.getEnv "run_type";
@@ -53,7 +53,7 @@ in
     #    systemd-boot.enable = true;
   };
 
-  networking.hostName = "AozoraWings-GTX1660"; # Define your hostname.
+  networking.hostName = hostName; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
