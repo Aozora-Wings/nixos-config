@@ -387,6 +387,9 @@ let def_ports = import ./def_ports.nix; in {
     dpi = "188";
   };
   hosts = {
+    "127.0.0.1" = [
+      "xiaoya.host"
+    ];
     # "127.0.0.1" = [
     #   "localhost.ptlogin2.qq.com"
     #   "steamcommunity.com"
