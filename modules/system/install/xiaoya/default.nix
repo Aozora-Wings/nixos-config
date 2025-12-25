@@ -16,7 +16,7 @@ let
     mkdir -p "$CONFIG_DIR"
     
     # 执行外部脚本
-    exec ${./modules/system/install/xiaoya/account-manager.sh} "$CONFIG_DIR"
+    exec ${./account-manager.sh} "$CONFIG_DIR"
   '';
   
   # 创建元数据解压脚本包装器
@@ -32,7 +32,7 @@ let
     mkdir -p "$MEDIA_DIR"
     
     # 执行外部脚本
-    exec ${./modules/system/install/xiaoya/metadata-extractor.sh} "$CONFIG_DIR" "$MEDIA_DIR"
+    exec ${./metadata-extractor.sh} "$CONFIG_DIR" "$MEDIA_DIR"
   '';
   
   # 创建小雅 Alist 服务启动脚本
@@ -220,7 +220,8 @@ in {
       xiaoyaStatusScript
       pkgs.podman
       pkgs.curl
-      pkgs.tar
+      pkgs.unzip
+      pkgs.zip
     ];
     
     # 如果启用自动启动，创建 systemd 服务

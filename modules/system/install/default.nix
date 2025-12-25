@@ -19,8 +19,8 @@ in {
       pinentry = "pinentry-gtk-2";
     };
     xiaoya = {
-      configDir = /service/xiaoya2/config;
-      mediaDir = /service/xiaoya2/media;
+      configDir = "/service/xiaoya2/config";
+      mediaDir = "/service/xiaoya2/media";
       enable = true;
     };
   };
