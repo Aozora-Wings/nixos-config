@@ -18,19 +18,27 @@ First of all, you need to partition the hard disk, here I recommend using btrfs 
 parted -a optimal /dev/nvme0n1
 mkpart primary 344GB -16GiB 
 quit
-mkfs.btrfs -L nixos /dev/nvme0n1p4
+mkfs.btrfs -L nixos /dev/sda2
 mkswap -L swap /dev/nvme0n1p5
-mount /dev/nvme0n1p4 /mnt
+mount /dev/sda2 /mnt
 btrfs subvolume create /mnt/root
 btrfs subvolume create /mnt/home
 btrfs subvolume create /mnt/nix
+btrfs subvolume create /mnt/service
+btrfs subvolume create /mnt/game
+btrfs subvolume create /mnt/var
+btrfs subvolume create /mnt/Developer
 umount /mnt
 
-mount -o compress=zstd,subvol=root /dev/nvme0n1p4 /mnt
-mkdir /mnt/{home,nix,boot}
-mount -o compress=zstd,subvol=home /dev/nvme0n1p4 /mnt/home
-mount -o compress=zstd,noatime,subvol=nix /dev/nvme0n1p4 /mnt/nix
-mount /dev/nvme0n1p1 /mnt/boot
+mount -o compress=zstd,subvol=root /dev/sda2 /mnt
+mkdir /mnt/{home,nix,boot,Developer,var,game,service}
+mount -o compress=zstd,subvol=home /dev/sda2 /mnt/home
+mount -o compress=zstd,noatime,subvol=nix /dev/sda2 /mnt/nix
+mount -o compress=zstd,noatime,subvol=service /dev/sda2 /mnt/service
+mount -o compress=zstd,noatime,subvol=game /dev/sda2 /mnt/game
+mount -o compress=zstd,noatime,subvol=var /dev/sda2 /mnt/var
+mount -o compress=zstd,noatime,subvol=Developer /dev/sda2 /mnt/Developer
+mount /dev/sda1 /mnt/boot
 swapon /dev/nvme0n1p5
 nixos-generate-config --root /mnt
 ```
