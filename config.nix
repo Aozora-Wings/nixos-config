@@ -1,6 +1,6 @@
 # config.nix
 let def_ports = import ./def_ports.nix; in {
-  root = "/developer/nixos-config";
+  root = "/Developer/nixos-config";
   def_ports = import ./def_ports.nix;
   username = "wt";
   hostname = "aozorawings";

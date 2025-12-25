@@ -165,7 +165,7 @@ in
     nh = {
       enable = true;
       clean.enable = true;
-      flake = "/developer/nixos-config";
+      flake = install-config.root;
     };
     obs-studio = {
       enable = true;
