@@ -64,10 +64,190 @@ check_metadata_size() {
   return 0
 }
 
+# 获取小雅内部地址
+get_xiaoya_addr() {
+  local docker0
+  
+  # 获取容器网络接口 IP
+  if command -v ip > /dev/null 2>&1; then
+    docker0=$(ip addr show podman0 2>/dev/null | awk '/inet / {print $2}' | cut -d '/' -f 1)
+    if [ -z "$docker0" ]; then
+      docker0=$(ip addr show docker0 2>/dev/null | awk '/inet / {print $2}' | cut -d '/' -f 1)
+    fi
+  elif command -v ifconfig > /dev/null 2>&1; then
+    docker0=$(ifconfig docker0 2>/dev/null | awk '/inet / {print $2}' | sed 's/addr://')
+  fi
+  
+  if [ -n "$docker0" ]; then
+    info "容器网络接口的 IP 地址是：$docker0"
+  else
+    warn "无法获取容器网络接口的 IP 地址！"
+    # 获取本地 IP
+    docker0=$(get_local_ip)
+    info "尝试使用本地IP：${docker0}"
+  fi
+  
+  # 测试小雅连通性
+  info "测试小雅的联通性..."
+  
+  # 获取签名（如果有）
+  local sign=""
+  if [ ! -f "$CONFIG_DIR/nosign.txt" ] && [ -f "$CONFIG_DIR/guestpass.txt" ] && [ -f "$CONFIG_DIR/guestlogin.txt" ]; then
+    # 简化签名获取，实际使用中可能需要容器执行
+    if [ -f "$CONFIG_DIR/guestpass.txt" ]; then
+      sign_md5=$(cat "$CONFIG_DIR/guestpass.txt" | tr -d '\r\n' | md5sum | awk '{print $1}')
+      sign="?sign=$sign_md5"
+    fi
+  fi
+  
+  # 内部函数：尝试启动小雅 Alist 容器
+  start_xiaoya_alist_if_needed() {
+    info "尝试启动小雅 Alist 容器..."
+    
+    # 检查 podman 是否可用
+    if ! command -v podman > /dev/null 2>&1; then
+      error "podman 命令未找到，无法启动容器"
+      return 1
+    fi
+    
+    # 检查容器是否已在运行
+    if podman ps --filter name=xiaoya-alist --format "{{.Status}}" 2>/dev/null | grep -q "Up"; then
+      info "小雅 Alist 容器已在运行"
+      return 0
+    fi
+    
+    # 检查容器是否存在但已停止
+    if podman ps -a --filter name=xiaoya-alist --format "{{.Status}}" 2>/dev/null | grep -q "Exited"; then
+      info "启动已停止的小雅 Alist 容器..."
+      if podman start xiaoya-alist > /dev/null 2>&1; then
+        info "容器启动成功"
+        return 0
+      else
+        error "容器启动失败"
+        return 1
+      fi
+    fi
+    
+    # 如果容器不存在，尝试使用 xiaoya-alist-start 命令启动
+    if command -v xiaoya-alist-start > /dev/null 2>&1; then
+      info "使用 xiaoya-alist-start 命令启动容器..."
+      if xiaoya-alist-start > /dev/null 2>&1; then
+        info "容器启动成功"
+        return 0
+      else
+        error "xiaoya-alist-start 启动失败"
+        return 1
+      fi
+    else
+      # 直接使用 podman run 启动容器（简化版本，可能需要根据实际情况调整参数）
+      warn "xiaoya-alist-start 命令未找到，尝试直接启动容器"
+      if podman run -d \
+        --name xiaoya-alist \
+        --restart=no \
+        -v "$CONFIG_DIR:/data" \
+        -v "$MEDIA_DIR:/media" \
+        -p 5678:80 \
+        -p 5244:5244 \
+        -p 2345:2345 \
+        -e TZ=Asia/Shanghai \
+        ddsderek/xiaoya-alist:latest > /dev/null 2>&1; then
+        info "容器启动成功"
+        return 0
+      else
+        error "容器启动失败"
+        return 1
+      fi
+    fi
+  }
+  
+  # 内部函数：测试连接
+  test_connection() {
+    local url="$1"
+    if curl -siL -m 10 "$url" | grep -q -e "x-oss-" -e "x-115-request-id"; then
+      return 0
+    else
+      return 1
+    fi
+  }
+  
+  # 第一次尝试连接
+  local xiaoya_addr=""
+  if test_connection "http://127.0.0.1:5678/d/README.md$sign"; then
+    xiaoya_addr="http://127.0.0.1:5678"
+  elif [ -n "$docker0" ] && test_connection "http://${docker0}:5678/d/README.md$sign"; then
+    xiaoya_addr="http://${docker0}:5678"
+  elif [ -f "$CONFIG_DIR/docker_address.txt" ]; then
+    docker_address=$(head -n1 "$CONFIG_DIR/docker_address.txt")
+    if test_connection "${docker_address}/d/README.md$sign"; then
+      xiaoya_addr="$docker_address"
+    else
+      warn "使用配置的 docker_address.txt 地址，但无法验证连通性"
+      xiaoya_addr="$docker_address"
+    fi
+  fi
+  
+  # 如果连接成功，返回地址
+  if [ -n "$xiaoya_addr" ]; then
+    echo "$xiaoya_addr"
+    return 0
+  fi
+  
+  # 连接失败，尝试启动容器
+  warn "无法连接到小雅，尝试启动小雅 Alist 容器..."
+  if start_xiaoya_alist_if_needed; then
+    info "等待容器启动（10秒）..."
+    sleep 10
+    
+    # 第二次尝试连接
+    if test_connection "http://127.0.0.1:5678/d/README.md$sign"; then
+      xiaoya_addr="http://127.0.0.1:5678"
+    elif [ -n "$docker0" ] && test_connection "http://${docker0}:5678/d/README.md$sign"; then
+      xiaoya_addr="http://${docker0}:5678"
+    elif [ -f "$CONFIG_DIR/docker_address.txt" ]; then
+      docker_address=$(head -n1 "$CONFIG_DIR/docker_address.txt")
+      if test_connection "${docker_address}/d/README.md$sign"; then
+        xiaoya_addr="$docker_address"
+      else
+        warn "使用配置的 docker_address.txt 地址，但无法验证连通性"
+        xiaoya_addr="$docker_address"
+      fi
+    fi
+    
+    if [ -n "$xiaoya_addr" ]; then
+      info "小雅 Alist 容器已启动并成功连接"
+      echo "$xiaoya_addr"
+      return 0
+    fi
+  fi
+  
+  # 如果仍然失败，报错退出
+  error "无法连接到小雅，请检查小雅是否正常运行"
+  error "可以尝试手动运行 'xiaoya-alist-start' 启动容器"
+  exit 1
+}
+
+# 获取本地 IP
+get_local_ip() {
+  # Linux (包括 NixOS)
+  ip address | grep inet | grep -v 172.17 | grep -v 127.0.0.1 | grep -v inet6 | awk '{print $2}' | sed 's/addr://' | head -n1 | cut -f1 -d"/"
+}
+
 # 下载元数据文件
 download_metadata_file() {
   local file="$1"
-  local xiaoya_addr="https://xiaoyahelper.zengge99.eu.org"
+  
+  # 获取小雅地址
+  local xiaoya_addr=$(get_xiaoya_addr)
+  info "连接小雅地址为: $xiaoya_addr"
+  
+  # 获取签名
+  local sign=""
+  if [ ! -f "$CONFIG_DIR/nosign.txt" ] && [ -f "$CONFIG_DIR/guestpass.txt" ] && [ -f "$CONFIG_DIR/guestlogin.txt" ]; then
+    if [ -f "$CONFIG_DIR/guestpass.txt" ]; then
+      sign_md5=$(cat "$CONFIG_DIR/guestpass.txt" | tr -d '\r\n' | md5sum | awk '{print $1}')
+      sign="?sign=$sign_md5"
+    fi
+  fi
   
   info "开始下载 $file ..."
   info "下载路径: $MEDIA_DIR/temp/$file"
@@ -82,7 +262,7 @@ download_metadata_file() {
   fi
   
   # 下载文件
-  local url="$xiaoya_addr/aliyun_share/$file"
+  local url="$xiaoya_addr/d/元数据/$file$sign"
   
   if [ "$DATA_DOWNLOADER" = "wget" ]; then
     info "使用 wget 下载"

@@ -43,6 +43,16 @@ let
     CONFIG_DIR="${toString cfg.configDir}"
     MEDIA_DIR="${toString cfg.mediaDir}"
     
+    # 获取容器网络接口 IP（用于 xiaoya.host 映射）
+    docker0=""
+    if command -v ip > /dev/null 2>&1; then
+      docker0=$(ip addr show podman0 2>/dev/null | awk '/inet / {print $2}' | cut -d '/' -f 1)
+      if [ -z "$docker0" ]; then
+        docker0=$(ip addr show docker0 2>/dev/null | awk '/inet / {print $2}' | cut -d '/' -f 1)
+      fi
+    fi
+    [ -z "$docker0" ] && docker0="127.0.0.1"
+    
     # 检查必要的配置文件
     if [ ! -f "$CONFIG_DIR/mytoken.txt" ] && [ ! -f "$CONFIG_DIR/myopentoken.txt" ]; then
       echo "错误：未找到阿里云盘 Token 文件"
@@ -72,12 +82,14 @@ let
       --name xiaoya-alist \
       --restart=unless-stopped \
       -v "$CONFIG_DIR:/data" \
+      -v "$CONFIG_DIR/data:/www/data" \
       -v "$MEDIA_DIR:/media" \
       -p 5678:80 \
       -p 5244:5244 \
       -p 2345:2345 \
       -e TZ=Asia/Shanghai \
-      ddsderek/xiaoya-alist:latest
+      --add-host="xiaoya.host:$docker0" \
+      xiaoyaliu/alist:latest
     
     echo "小雅 Alist 容器已启动"
     echo "访问地址: http://localhost:5678"
@@ -104,6 +116,16 @@ let
     # 清理可能存在的旧容器
     podman rm -f xiaoya-emby 2>/dev/null || true
     
+    # 获取容器网络接口 IP（用于 xiaoya.host 映射）
+    docker0=""
+    if command -v ip > /dev/null 2>&1; then
+      docker0=$(ip addr show podman0 2>/dev/null | awk '/inet / {print $2}' | cut -d '/' -f 1)
+      if [ -z "$docker0" ]; then
+        docker0=$(ip addr show docker0 2>/dev/null | awk '/inet / {print $2}' | cut -d '/' -f 1)
+      fi
+    fi
+    [ -z "$docker0" ] && docker0="127.0.0.1"
+    
     # 启动新容器
     podman run -d \
       --name xiaoya-emby \
@@ -114,6 +136,7 @@ let
       -e TZ=Asia/Shanghai \
       -e UID=1000 \
       -e GID=1000 \
+      --add-host="xiaoya.host:$docker0" \
       ddsderek/emby:latest
     
     echo "小雅 Emby 容器已启动"
