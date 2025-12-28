@@ -8,6 +8,7 @@ in {
     ./docker-compose.nix
     ./iflow
     ./xiaoya  # 小雅套件模块
+    # Minecraft 服务器模块在 hosts/AozoraWings-GTX1660/service/mc.nix 中定义
   ];
   modules-install = {
     rbw = {
@@ -38,6 +39,7 @@ in {
       enable = true;
       enableUV = true;
     };
+    # Minecraft 服务器配置在 hosts/AozoraWings-GTX1660/service.nix 中定义
   };
 
 }
