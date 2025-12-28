@@ -12,19 +12,37 @@ in
     ./service
   ];
     services = {
-    # Minecraft 服务器配置（默认启用但不会自动启动）
-    # 使用自定义名称避免与 NixOS 内置模块冲突
-    minecraft-server-custom = {
-      enable = true;  # 启用服务（安装相关文件和脚本）
-      dataDir = "/var/lib/minecraft";  # 数据目录
-      serverJar = null;  # 需要手动放置 server.jar 文件
-      javaPackage = pkgs.jdk17;  # 使用 JDK 17
-      minMemory = 1024;  # 最小内存 1GB
-      maxMemory = 4096;  # 最大内存 4GB
-      useTmux = true;  # 启用 tmux 以便后台访问
-      tmuxSessionName = "minecraft-server";
-      autoStart = false;  # 不自动启动，需要时手动启动
-      backupOnStop = false;  # 停止时不自动备份
+
+    minecraft-servers = {
+      # 秘境时代服务器实例
+      tmeo = {
+        enable = true;  # 启用此实例
+        dataDir = "/server/minecraft/tmeo";  # 独立的数据目录
+        serverJar = null;  # 需要手动放置 server.jar 文件
+        javaPackage = pkgs.jdk17;  # 使用 JDK 17
+        minMemory = 2048;  # 最小内存 2GB
+        maxMemory = 32000;  # 最大内存 8GB
+        serverPort = 25565;  # 默认 Minecraft 端口
+        useTmux = true;  # 启用 tmux 以便后台访问
+        tmuxSessionName = "minecraft-tmeo";  # 唯一的 tmux 会话名
+        autoStart = false;  # 不自动启动，需要时手动启动
+        backupOnStop = true;  # 停止时自动备份
+      };
+
+      # 机械工业服务器实例
+      # mechanical-industry = {
+      #   enable = true;  # 启用此实例
+      #   dataDir = "/server/minecraft/mechanical-industry";  # 独立的数据目录
+      #   serverJar = null;  # 需要手动放置 server.jar 文件
+      #   javaPackage = pkgs.jdk17;  # 使用 JDK 17
+      #   minMemory = 3072;  # 最小内存 3GB
+      #   maxMemory = 12288;  # 最大内存 12GB
+      #   serverPort = 25566;  # 使用不同的端口避免冲突
+      #   useTmux = true;  # 启用 tmux 以便后台访问
+      #   tmuxSessionName = "minecraft-mechanical-industry";  # 唯一的 tmux 会话名
+      #   autoStart = false;  # 不自动启动，需要时手动启动
+      #   backupOnStop = true;  # 停止时自动备份
+      # };
     };
   };
  }
