@@ -32,7 +32,9 @@ in
       # Include the results of the hardware scan.
       #./hardware-configuration.nix
     ]
-    ++ (if run-mode == "install" then [ /mnt/etc/nixos/hardware-configuration.nix ] else [ /etc/nixos/hardware-configuration.nix ]);
+    ++ (if run-mode == "install" then [ /mnt/etc/nixos/hardware-configuration.nix ] else (
+      if builtins.pathExists ./hardware-configuration.nix then [ ./hardware-configuration.nix ] else []
+    ));
 
   # Bootloader.
   boot = {

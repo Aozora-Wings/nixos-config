@@ -13,7 +13,8 @@ in
   ];
     services = {
     # Minecraft 服务器配置（默认启用但不会自动启动）
-    minecraft-server = {
+    # 使用自定义名称避免与 NixOS 内置模块冲突
+    minecraft-server-custom = {
       enable = true;  # 启用服务（安装相关文件和脚本）
       dataDir = "/var/lib/minecraft";  # 数据目录
       serverJar = null;  # 需要手动放置 server.jar 文件

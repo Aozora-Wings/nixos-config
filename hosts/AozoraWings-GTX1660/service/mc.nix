@@ -3,7 +3,7 @@
 with lib;
 
 let
-  cfg = config.services.minecraft-server;
+  cfg = config.services.minecraft-server-custom;
   
   # 创建启动脚本，支持通过环境变量传递 Java 文件
   startScript = pkgs.writeShellScriptBin "minecraft-start" ''
@@ -241,7 +241,7 @@ let
 
 in
 {
-  options.services.minecraft-server = {
+  options.services.minecraft-server-custom = {
     enable = mkEnableOption "Minecraft server service";
 
     user = mkOption {

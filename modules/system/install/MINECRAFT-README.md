@@ -27,7 +27,7 @@
 配置位于 `hosts/AozoraWings-GTX1660/service.nix`：
 
 ```nix
-services.minecraft-server = {
+services.minecraft-server-custom = {
   enable = true;           # 启用服务（安装相关文件和脚本）
   dataDir = "/var/lib/minecraft";
   javaPackage = pkgs.jdk17;
@@ -143,7 +143,7 @@ minecraft-manage backup
 ### 完整配置示例
 
 ```nix
-services.minecraft-server = {
+services.minecraft-server-custom = {
   enable = true;
   
   # 基本配置
