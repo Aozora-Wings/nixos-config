@@ -20,6 +20,7 @@
         ./udev.nix
         ./hardware.nix
         ./avahi.nix
+        ./print.nix
     ];
 
     #plasma 6 enable orca
