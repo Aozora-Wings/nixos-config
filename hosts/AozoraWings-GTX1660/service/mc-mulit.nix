@@ -11,23 +11,29 @@ let
         #!/usr/bin/env bash
         set -e
         
-        SERVER_DIR="${instanceCfg.dataDir}"
-        JAVA_EXEC="${instanceCfg.javaPackage}/bin/java"
+        SERVER_DIR="${toString instanceCfg.dataDir}"
+        JAVA_EXEC="${toString instanceCfg.javaPackage}/bin/java"
         
         # 检查数据目录
         if [ ! -d "$SERVER_DIR" ]; then
           echo "创建 Minecraft 服务器目录: $SERVER_DIR"
           mkdir -p "$SERVER_DIR"
-          chown ${instanceCfg.user}:${instanceCfg.group} "$SERVER_DIR"
+          chown ${toString instanceCfg.user}:shared "$SERVER_DIR"
         fi
         
+        # 确保整个目录树有正确的所有权和权限
+        # echo "设置服务器目录权限..."
+        # chown -R ${toString instanceCfg.user}:shared "$SERVER_DIR"
+        # chmod -R u+rwX,g+rX,o-rwx "$SERVER_DIR"
+        # find "$SERVER_DIR" -type d -exec chmod g+s {} \;  # 设置 setgid
+
         cd "$SERVER_DIR"
         
         # 检查是否已有 server.jar
         if [ ! -f "server.jar" ]; then
-          if [ -n "${instanceCfg.serverJar}" ] && [ -f "${instanceCfg.serverJar}" ]; then
-            echo "使用指定的 server.jar: ${instanceCfg.serverJar}"
-            cp "${instanceCfg.serverJar}" "server.jar"
+          if [ -n "${toString instanceCfg.serverJar}" ] && [ -f "${toString instanceCfg.serverJar}" ]; then
+            echo "使用指定的 server.jar: ${toString instanceCfg.serverJar}"
+            cp "${toString instanceCfg.serverJar}" "server.jar"
           else
             echo "错误: 未找到 server.jar 文件"
             echo "请将 server.jar 文件放置在 $SERVER_DIR 目录中"
@@ -43,9 +49,7 @@ let
         )
         
         # 添加额外的 JVM 参数
-        for arg in ${toString instanceCfg.extraJavaArgs}; do
-          JAVA_ARGS+=("$arg")
-        done
+        ${lib.concatMapStrings (arg: "JAVA_ARGS+=(${lib.escapeShellArg arg})\n") instanceCfg.extraJavaArgs}
         
         # 添加服务器参数
         SERVER_ARGS=(
@@ -54,9 +58,7 @@ let
         )
         
         # 添加额外的服务器参数
-        for arg in ${toString instanceCfg.extraServerArgs}; do
-          SERVER_ARGS+=("$arg")
-        done
+        ${lib.concatMapStrings (arg: "SERVER_ARGS+=(${lib.escapeShellArg arg})\n") instanceCfg.extraServerArgs}
         
         # 添加服务器端口参数（如果指定）
         if [ -n "${toString instanceCfg.serverPort}" ] && [ "${toString instanceCfg.serverPort}" != "null" ]; then
@@ -70,23 +72,23 @@ let
         echo "服务器参数: ''${SERVER_ARGS[@]}"
         
         # 使用 tmux 运行服务器以便后台访问
-        if [ "${instanceCfg.useTmux}" = true ]; then
-          echo "使用 tmux 会话运行服务器 (会话名: ${instanceCfg.tmuxSessionName})"
+        if [ "${toString instanceCfg.useTmux}" = true ]; then
+          echo "使用 tmux 会话运行服务器 (会话名: ${toString instanceCfg.tmuxSessionName})"
           
           # 检查是否已有 tmux 会话
-          if tmux has-session -t "${instanceCfg.tmuxSessionName}" 2>/dev/null; then
-            echo "tmux 会话已存在: ${instanceCfg.tmuxSessionName}"
-            echo "使用 'tmux attach -t ${instanceCfg.tmuxSessionName}' 连接到会话"
+          if tmux has-session -t "${toString instanceCfg.tmuxSessionName}" 2>/dev/null; then
+            echo "tmux 会话已存在: ${toString instanceCfg.tmuxSessionName}"
+            echo "使用 'tmux attach -t ${toString instanceCfg.tmuxSessionName}' 连接到会话"
             exit 0
           fi
           
           # 创建新的 tmux 会话并运行服务器
-          exec tmux new-session -d -s "${instanceCfg.tmuxSessionName}" \
+          exec tmux new-session -d -s "${toString instanceCfg.tmuxSessionName}" \
             "$JAVA_EXEC" "''${JAVA_ARGS[@]}" "''${SERVER_ARGS[@]}"
           
           echo "服务器已在 tmux 会话中启动"
           echo "使用以下命令连接到服务器控制台:"
-          echo "  tmux attach -t ${instanceCfg.tmuxSessionName}"
+          echo "  tmux attach -t ${toString instanceCfg.tmuxSessionName}"
           echo "退出控制台: Ctrl+B, D"
         else
           # 直接运行服务器
@@ -99,25 +101,25 @@ let
         #!/usr/bin/env bash
         set -e
         
-        SERVER_DIR="${instanceCfg.dataDir}"
-        TMUX_SESSION="${instanceCfg.tmuxSessionName}"
+        SERVER_DIR="${toString instanceCfg.dataDir}"
+        TMUX_SESSION="${toString instanceCfg.tmuxSessionName}"
         
         case "$1" in
           start)
-            if [ "${instanceCfg.useTmux}" = true ]; then
+            if [ "${toString instanceCfg.useTmux}" = true ]; then
               if tmux has-session -t "$TMUX_SESSION" 2>/dev/null; then
                 echo "服务器已在运行 (tmux 会话: $TMUX_SESSION)"
               else
                 echo "启动 Minecraft 服务器实例: ${instanceName}..."
-                systemctl start minecraft-server-${instanceName}
+                systemctl start ${instanceName}
               fi
             else
-              systemctl start minecraft-server-${instanceName}
+              systemctl start ${instanceName}
             fi
             ;;
           
           stop)
-            if [ "${instanceCfg.useTmux}" = true ]; then
+            if [ "${toString instanceCfg.useTmux}" = true ]; then
               if tmux has-session -t "$TMUX_SESSION" 2>/dev/null; then
                 echo "向服务器发送停止命令..."
                 tmux send-keys -t "$TMUX_SESSION" "stop" Enter
@@ -125,7 +127,7 @@ let
                 sleep 10
               fi
             fi
-            systemctl stop minecraft-server-${instanceName}
+            systemctl stop ${instanceName}
             ;;
           
           restart)
@@ -135,7 +137,7 @@ let
             ;;
           
           status)
-            if [ "${instanceCfg.useTmux}" = true ]; then
+            if [ "${toString instanceCfg.useTmux}" = true ]; then
               if tmux has-session -t "$TMUX_SESSION" 2>/dev/null; then
                 echo "服务器状态: 运行中 (tmux 会话: $TMUX_SESSION)"
                 echo "使用 'tmux attach -t $TMUX_SESSION' 连接到控制台"
@@ -143,12 +145,12 @@ let
                 echo "服务器状态: 未运行 (tmux)"
               fi
             else
-              systemctl status minecraft-server-${instanceName} --no-pager
+              systemctl status ${instanceName} --no-pager
             fi
             ;;
           
           console|attach)
-            if [ "${instanceCfg.useTmux}" != true ]; then
+            if [ "${toString instanceCfg.useTmux}" != true ]; then
               echo "错误: 未启用 tmux，无法连接到控制台"
               echo "请设置 services.minecraft-servers.${instanceName}.useTmux = true;"
               exit 1
@@ -198,7 +200,7 @@ let
             ;;
           
           command|cmd)
-            if [ "${instanceCfg.useTmux}" != true ]; then
+            if [ "${toString instanceCfg.useTmux}" != true ]; then
               echo "错误: 未启用 tmux，无法发送命令"
               exit 1
             fi
@@ -239,7 +241,7 @@ let
             echo "配置信息:"
             echo "  数据目录: $SERVER_DIR"
             echo "  Tmux 会话: $TMUX_SESSION"
-            echo "  使用 Tmux: ${instanceCfg.useTmux}"
+            echo "  使用 Tmux: ${toString instanceCfg.useTmux}"
             echo "  服务器端口: ${toString instanceCfg.serverPort}"
             exit 1
             ;;
@@ -379,9 +381,9 @@ in
     enabledInstances = lib.filterAttrs (name: cfg: cfg.enable) instances;
     
     # 收集所有需要的软件包
-    allPackages = with pkgs; [ tmux ] +
-      (lib.unique (lib.mapAttrsToList (name: cfg: cfg.javaPackage) enabledInstances)) +
-      (lib.mapAttrsToList (name: cfg: instanceConfigs.${name}.startScript) enabledInstances) +
+    allPackages = with pkgs; [ tmux ] ++
+      (lib.unique (lib.mapAttrsToList (name: cfg: cfg.javaPackage) enabledInstances)) ++
+      (lib.mapAttrsToList (name: cfg: instanceConfigs.${name}.startScript) enabledInstances) ++
       (lib.mapAttrsToList (name: cfg: instanceConfigs.${name}.manageScript) enabledInstances);
     
     # 收集所有用户
@@ -411,7 +413,7 @@ in
           NoNewPrivileges = true;
           PrivateTmp = true;
           PrivateDevices = true;
-          ProtectSystem = "strict";
+          ProtectSystem = "false";
           ProtectHome = true;
           ReadWritePaths = instanceCfg.dataDir;
           
@@ -420,24 +422,24 @@ in
           LimitNPROC = 65536;
         };
 
+        # 环境变量 - 使用 mkForce 覆盖系统默认值
+        environment = lib.mkForce {
+          JAVA_HOME = "${toString instanceCfg.javaPackage}";
+          PATH = "${toString instanceCfg.javaPackage}/bin:${pkgs.tmux}/bin:${pkgs.coreutils}/bin";
+        };
+
         # 服务停止时的清理脚本
         postStop = lib.mkIf instanceCfg.backupOnStop ''
           echo "创建服务器备份..."
           ${cfg.manageScript}/bin/minecraft-manage-${instanceName} backup
         '';
-        
-        # 环境变量
-        environment = {
-          JAVA_HOME = "${instanceCfg.javaPackage}";
-          PATH = "${instanceCfg.javaPackage}/bin:${pkgs.tmux}/bin:${pkgs.coreutils}/bin";
-        };
       }
     ) enabledInstances;
     
     # 生成 tmpfiles 规则
     tmpfilesRules = lib.concatLists (lib.mapAttrsToList (instanceName: instanceCfg: [
-      "d '${instanceCfg.dataDir}' 0750 ${instanceCfg.user} ${instanceCfg.group} -"
-      "d '${instanceCfg.dataDir}/backups' 0750 ${instanceCfg.user} ${instanceCfg.group} -"
+      "d '${toString instanceCfg.dataDir}' 0750 ${toString instanceCfg.user} ${toString instanceCfg.group} -"
+      "d '${toString instanceCfg.dataDir}/backups' 0750 ${toString instanceCfg.user} ${toString instanceCfg.group} -"
     ]) enabledInstances);
     
     # 生成用户配置
@@ -446,6 +448,7 @@ in
         isSystemUser = true;
         group = user;
         home = "/var/lib/${user}";
+        extraGroups = [ "shared" ];  # 加入共享组
         createHome = true;
       };
     }) {} (lib.unique allUsers);
