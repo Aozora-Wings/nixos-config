@@ -55,6 +55,11 @@
       fsType = "btrfs";
       options = [ "subvol=Developer" ];
     };
+    fileSystems."/LocalDisk" = {
+      device = "/dev/disk/by-uuid/2F808B699EC3AF97";
+      fsType = "ntfs3";
+      options = [ "uid=1000" "gid=100" "rw" "nofail"];  # systemd 的 nofail 选项
+    };
 
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/6A72-6E94";

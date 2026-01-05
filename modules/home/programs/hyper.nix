@@ -51,6 +51,7 @@ in
     # 桌面环境集成
     adwaita-icon-theme
     gnome-themes-extra
+    hyprland-protocols
     
     # Rofi 主题和配置（可选）
     rofi
@@ -163,7 +164,7 @@ in
   
   # 8. 其他应用
   "kwalletd6"
-  "waybar"
+  "waybar -c ~/.config/waybar/hypr/config"
   "fcitx5"
   "hyprpaper"
   "swww-daemon --format xrgb"

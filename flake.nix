@@ -51,6 +51,13 @@
       url = "github:Aozora-Wings/wechat-linux-monitor";
       flake = false;
     };
+    CookNixvim = {
+    url = "github:Youthdreamer/CookNixvim";
+    # If you are not running an unstable channel of nixpkgs, select the corresponding branch of Nixvim.
+    # url = "github:nix-community/nixvim/nixos-25.11";
+
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
   };
 
   outputs =
@@ -62,6 +69,7 @@
     , agenix
     , mySoftware
     , wechat-monitor
+    , CookNixvim
     , ...
     }:
     let
@@ -139,6 +147,7 @@
           { nix.settings.cores = 30; }
           (./hosts + "/${hostName}")
           agenix.nixosModules.default
+          #nixvim.nixosModules.nixvim
           (if builtins.elem hostName ["aozorawings" "AozoraWings-GTX1660" "server"] then 
             inputs.minegrub-theme.nixosModules.default 
           else {})
@@ -160,6 +169,7 @@
                   agenix.homeManagerModules.default
               ];
               _module.args.hostName = hostName;
+              home.packages = [CookNixvim.packages.${system}.default];
             };
           }
         ] ++ extraModules;

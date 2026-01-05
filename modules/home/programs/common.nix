@@ -284,5 +284,6 @@ in
   };
 
 xdg.configFile."niri/config.kdl".text = niriConfig;
-xdg.configFile."waybar/config".source = ./waybar-config;
+xdg.configFile."waybar/config".source = ./niri-waybar-config;
+xdg.configFile."waybar/hypr/config".source = ./hypr-waybar-config;
 }
