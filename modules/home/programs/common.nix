@@ -46,7 +46,7 @@ in
     xca
     # archives
     zip
-    zx
+    stable.zx
     unzip
     p7zip
     opensc
