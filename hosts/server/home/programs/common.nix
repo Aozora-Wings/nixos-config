@@ -4,6 +4,7 @@
 , config
 , install-config
 , unstable
+, stable
 , ...
 }:
 let
@@ -17,7 +18,7 @@ in
     xca
     # archives
     zip
-    zx
+    stable.zx
     unzip
     p7zip
 
