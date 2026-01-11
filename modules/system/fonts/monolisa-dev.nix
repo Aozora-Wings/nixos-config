@@ -2,14 +2,14 @@
 
 let
   username = install-config.username;
-  
-  # 检查 agenix 解密的文件是否存在
-  hasDecryptedItalic = builtins.pathExists "/run/agenix/MonoLisa-Italic";
-  hasDecryptedNormal = builtins.pathExists "/run/agenix/MonoLisa-Normal";
-  
-  # 只有在两个文件都存在时才创建字体包
-  monolisaFont = if hasDecryptedItalic && hasDecryptedNormal then pkgs.stdenv.mkDerivation {
+  hasDecryptedSecret = builtins.pathExists "/run/agenix/MonoLisa-Italic";
+  # 创建字体包，将 agenix 解密的内容作为输入
+  monolisaFont = pkgs.stdenv.mkDerivation {
     name = "monolisa-variable";
+    
+    # 使用 derivation 来接收 agenix 解密的内容
+    italicBase64 = config.age.secrets."MonoLisa-Italic".path or null;
+    normalBase64 = config.age.secrets."MonoLisa-Normal".path or null;
     
     nativeBuildInputs = with pkgs; [
       coreutils
@@ -19,35 +19,64 @@ let
     buildCommand = ''
       mkdir -p $out/share/fonts/truetype
       
-      # 复制已解密的 Italic 字体
-      echo "复制 Italic 字体..."
-      cp /run/agenix/MonoLisa-Italic $out/share/fonts/truetype/MonoLisaVariableItalic.ttf
+      echo "处理 Italic 字体..."
+      
+      # 检查文件是否存在
+      if [ ! -f "$italicBase64" ]; then
+        echo "错误: Italic 字体文件不存在"
+        exit 1
+      fi
+      
+      if [ ! -f "$normalBase64" ]; then
+        echo "错误: Normal 字体文件不存在"
+        exit 1
+      fi
+      
+      # 解码 base64 文件
+      ${pkgs.coreutils}/bin/base64 -d "$italicBase64" > \
+        $out/share/fonts/truetype/MonoLisaVariableItalic.ttf
       
       # 验证 Italic 字体
       if ! ${pkgs.file}/bin/file $out/share/fonts/truetype/MonoLisaVariableItalic.ttf | \
         grep -q "TrueType font data"; then
-        echo "Italic 字体文件验证失败"
+        echo "Italic 字体解码失败"
         exit 1
       fi
       
-      # 复制已解密的 Normal 字体
-      echo "复制 Normal 字体..."
-      cp /run/agenix/MonoLisa-Normal $out/share/fonts/truetype/MonoLisaVariableNormal.ttf
+      echo "处理 Normal 字体..."
+      ${pkgs.coreutils}/bin/base64 -d "$normalBase64" > \
+        $out/share/fonts/truetype/MonoLisaVariableNormal.ttf
       
       # 验证 Normal 字体
       if ! ${pkgs.file}/bin/file $out/share/fonts/truetype/MonoLisaVariableNormal.ttf | \
         grep -q "TrueType font data"; then
-        echo "Normal 字体文件验证失败"
+        echo "Normal 字体解码失败"
         exit 1
       fi
       
-      echo "✅ 字体复制完成"
+      echo "✅ 字体处理完成"
     '';
-  } else null;
+  };
   
 in
 {
-  # 只有在字体包存在时才安装
-  environment.systemPackages = lib.optional (monolisaFont != null) monolisaFont;
-  fonts.packages = lib.optional (monolisaFont != null) monolisaFont;
+  # 确保 agenix 配置正确
+  age.identityPaths = [
+    "/home/${username}/.ssh/vw_wt"
+  ];
+  
+  age.secrets = {
+    "MonoLisa-Normal" = {
+      file = secrets_file.MonoLisaVariableNormal;
+      owner = install-config.username;
+    };
+    "MonoLisa-Italic" = {
+      file = secrets_file.MonoLisaVariableItalic;
+      owner = install-config.username;
+    };
+  };
+  
+  # 安装字体包
+  environment.systemPackages = lib.mkIf hasDecryptedSecret [ monolisaFont ];
+  fonts.packages =lib.mkIf hasDecryptedSecret  [ monolisaFont ];
 }
