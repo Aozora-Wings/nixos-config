@@ -13,60 +13,60 @@
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
   boot.swraid.enable = true;
-  
+
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/59047070-3a08-41e6-a2d7-15420c3844d6";
+    { device = "/dev/disk/by-uuid/164ad9e5-2446-4b55-962c-1bb17e331bb8";
       fsType = "btrfs";
       options = [ "subvol=root" ];
     };
 
   fileSystems."/home" =
-    { device = "/dev/disk/by-uuid/59047070-3a08-41e6-a2d7-15420c3844d6";
+    { device = "/dev/disk/by-uuid/164ad9e5-2446-4b55-962c-1bb17e331bb8";
       fsType = "btrfs";
       options = [ "subvol=home" ];
     };
 
   fileSystems."/nix" =
-    { device = "/dev/disk/by-uuid/59047070-3a08-41e6-a2d7-15420c3844d6";
+    { device = "/dev/disk/by-uuid/164ad9e5-2446-4b55-962c-1bb17e331bb8";
       fsType = "btrfs";
       options = [ "subvol=nix" ];
     };
 
-  fileSystems."/var" =
-    { device = "/dev/disk/by-uuid/59047070-3a08-41e6-a2d7-15420c3844d6";
-      fsType = "btrfs";
-      options = [ "subvol=var" ];
-    };
-
   fileSystems."/service" =
-    { device = "/dev/disk/by-uuid/59047070-3a08-41e6-a2d7-15420c3844d6";
+    { device = "/dev/disk/by-uuid/164ad9e5-2446-4b55-962c-1bb17e331bb8";
       fsType = "btrfs";
       options = [ "subvol=service" ];
     };
 
   fileSystems."/game" =
-    { device = "/dev/disk/by-uuid/59047070-3a08-41e6-a2d7-15420c3844d6";
+    { device = "/dev/disk/by-uuid/164ad9e5-2446-4b55-962c-1bb17e331bb8";
       fsType = "btrfs";
       options = [ "subvol=game" ];
     };
 
+  fileSystems."/var" =
+    { device = "/dev/disk/by-uuid/164ad9e5-2446-4b55-962c-1bb17e331bb8";
+      fsType = "btrfs";
+      options = [ "subvol=var" ];
+    };
+
   fileSystems."/Developer" =
-    { device = "/dev/disk/by-uuid/59047070-3a08-41e6-a2d7-15420c3844d6";
+    { device = "/dev/disk/by-uuid/164ad9e5-2446-4b55-962c-1bb17e331bb8";
       fsType = "btrfs";
       options = [ "subvol=Developer" ];
     };
+
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/24E1-B376";
+      fsType = "vfat";
+      options = [ "fmask=0022" "dmask=0022" ];
+    };
+
     fileSystems."/LocalDisk" = {
       device = "/dev/disk/by-uuid/2F808B699EC3AF97";
       fsType = "ntfs3";
       options = [ "uid=1000" "gid=100" "rw" "nofail"];  # systemd 的 nofail 选项
     };
-
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/6A72-6E94";
-      fsType = "vfat";
-      options = [ "fmask=0022" "dmask=0022" ];
-    };
-
   swapDevices = [ ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
