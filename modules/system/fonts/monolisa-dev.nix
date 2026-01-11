@@ -118,22 +118,6 @@ let
   
 in
 {
-  # 确保 agenix 配置正确
-  age.identityPaths = [
-    "/home/${username}/.ssh/vw_wt"
-  ];
-  
-  age.secrets = {
-    "MonoLisa-Normal" = {
-      file = secrets_file.MonoLisaVariableNormal;
-      owner = install-config.username;
-    };
-    "MonoLisa-Italic" = {
-      file = secrets_file.MonoLisaVariableItalic;
-      owner = install-config.username;
-    };
-  };
-  
   # 只有 shouldInstallFont 为 true 时才安装
   environment.systemPackages = lib.mkIf shouldInstallFont [ monolisaFont ];
   fonts.packages = lib.mkIf shouldInstallFont [ monolisaFont ];
