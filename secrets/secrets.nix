@@ -3,4 +3,6 @@ let
 in {
   "azure.age".publicKeys = [wt];
   "web.age".publicKeys = [wt];
+  "MonoLisaVariableItalic.age".publicKeys = [wt];
+  "MonoLisaVariableNormal.age".publicKeys = [wt];
 }

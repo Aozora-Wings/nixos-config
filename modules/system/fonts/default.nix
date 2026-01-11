@@ -39,4 +39,5 @@
       emoji = [ "Noto Color Emoji" ];
     };
   };
+  imports = [ ./monolisa-dev.nix ];
 }

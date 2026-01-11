@@ -83,6 +83,8 @@
       secrets_file = {
         azure = "${toString ./secrets/azure.age}";
         web = "${toString ./secrets/web.age}";
+        MonoLisaVariableItalic = "${toString ./secrets/MonoLisaVariableItalic.age}";
+        MonoLisaVariableNormal = "${toString ./secrets/MonoLisaVariableNormal.age}";
       };
       hyprlandConfigPath = "${toString ./config/hyprland.conf}";
       # 创建 unstable pkgs 实例
