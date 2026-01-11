@@ -1,68 +1,85 @@
-# 在 Nix 配置中直接嵌入转换逻辑
-{ config, pkgs, lib, install-config, unstable, stable, flakeSoftware, hyprlandConfigPath, secrets_file, ... }:
+{ config, pkgs, lib, install-config, secrets_file, ... }:
 
 let
-  # 注意：构建时检查的路径可能不准确，建议改为运行时检查
   username = install-config.username;
+  privateKeyPath = "/home/${username}/.ssh/vw_wt";
+  
+  # 检查私钥是否存在
+  hasPrivateKey = builtins.pathExists privateKeyPath;
   
   # 创建字体包
   monolisaFont = pkgs.stdenv.mkDerivation {
     name = "monolisa-variable";
     
     nativeBuildInputs = with pkgs; [
-      agenix
+      age        # 使用 age 而不是 agenix
       coreutils
       file
     ];
     
-    # 将私钥作为构建输入（注意安全风险！）
-    privateKey = "/home/${username}/.ssh/vw_wt";
+    # 将私钥作为构建输入
+    src = if hasPrivateKey then privateKeyPath else null;
     
-    buildCommand = ''
+    # 只有在有私钥时才构建
+    phases = if hasPrivateKey then [ "buildPhase" ] else [];
+    
+    buildPhase = ''
       mkdir -p $out/share/fonts/truetype
       
-      # 检查私钥是否存在
-      if [ ! -f "${privateKey}" ]; then
-        echo "私钥不存在: ${privateKey}"
-        exit 1
+      if [ ! -f "$src" ]; then
+        echo "跳过字体安装: 私钥不存在"
+        exit 0
       fi
       
       # 解密 Italic 字体
       echo "解密 Italic 字体..."
-      ${pkgs.agenix}/bin/agenix -d ${secrets_file.MonoLisaVariableItalic} -i "${privateKey}" > /tmp/font_italic.b64
+      ${pkgs.age}/bin/age -d \
+        -i "$src" \
+        -o /tmp/font_italic.b64 \
+        ${secrets_file.MonoLisaVariableItalic}
       
       # base64 解码
-      ${pkgs.coreutils}/bin/base64 -d /tmp/font_italic.b64 > $out/share/fonts/truetype/MonoLisaVariableItalic.ttf
+      ${pkgs.coreutils}/bin/base64 -d /tmp/font_italic.b64 > \
+        $out/share/fonts/truetype/MonoLisaVariableItalic.ttf
       
       # 验证 Italic 字体
-      if ! ${pkgs.file}/bin/file $out/share/fonts/truetype/MonoLisaVariableItalic.ttf | grep -q "TrueType font data"; then
+      if ! ${pkgs.file}/bin/file $out/share/fonts/truetype/MonoLisaVariableItalic.ttf | \
+        grep -q "TrueType font data"; then
         echo "Italic 字体解密失败"
         exit 1
       fi
       
       # 解密 Normal 字体
       echo "解密 Normal 字体..."
-      ${pkgs.agenix}/bin/agenix -d ${secrets_file.MonoLisaVariableNormal} -i "${privateKey}" > /tmp/font_normal.b64
+      ${pkgs.age}/bin/age -d \
+        -i "$src" \
+        -o /tmp/font_normal.b64 \
+        ${secrets_file.MonoLisaVariableNormal}
       
       # base64 解码
-      ${pkgs.coreutils}/bin/base64 -d /tmp/font_normal.b64 > $out/share/fonts/truetype/MonoLisaVariableNormal.ttf
+      ${pkgs.coreutils}/bin/base64 -d /tmp/font_normal.b64 > \
+        $out/share/fonts/truetype/MonoLisaVariableNormal.ttf
       
       # 验证 Normal 字体
-      if ! ${pkgs.file}/bin/file $out/share/fonts/truetype/MonoLisaVariableNormal.ttf | grep -q "TrueType font data"; then
+      if ! ${pkgs.file}/bin/file $out/share/fonts/truetype/MonoLisaVariableNormal.ttf | \
+        grep -q "TrueType font data"; then
         echo "Normal 字体解密失败"
         exit 1
       fi
       
       echo "✅ 字体解密完成"
     '';
+    
+    # 如果私钥不存在，创建空占位
+    installPhase = if !hasPrivateKey then ''
+      mkdir -p $out/share/fonts/truetype
+      touch $out/share/fonts/truetype/MonoLisaVariableItalic.ttf
+      touch $out/share/fonts/truetype/MonoLisaVariableNormal.ttf
+    '' else null;
   };
   
-  # 检查私钥是否存在的条件
-  hasPrivateKey = builtins.pathExists "/home/${username}/.ssh/vw_wt";
 in
 {
-  # 只在有私钥时才安装
-  environment.systemPackages = lib.mkIf hasPrivateKey [ monolisaFont ];
-  
-  fonts.packages = lib.mkIf hasPrivateKey [ monolisaFont ];
+  environment.systemPackages = [ monolisaFont ];
+  fonts.packages = [ monolisaFont ];
 }

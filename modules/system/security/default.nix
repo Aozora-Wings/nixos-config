@@ -29,5 +29,17 @@ in
       file = secrets_file.azure;
       owner = install-config.username;
     };
+    secrets."MonoLisa-Normal" = {
+      file = secrets_file.MonoLisaVariableNormal;
+      owner = install-config.username;
+    };
+    secrets."MonoLisa-Italic" = {
+      file = secrets_file.MonoLisaVariableItalic;
+      owner = install-config.username;
+    };
+  };
+    home-manager.extraSpecialArgs = {
+    monolisaItalicPath = "/run/agenix/MonoLisa-Italic";
+    monolisaNormalPath = "/run/agenix/MonoLisa-Normal";
   };
 }

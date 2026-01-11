@@ -149,6 +149,10 @@
           { nix.settings.cores = 30; }
           (./hosts + "/${hostName}")
           agenix.nixosModules.default
+          ({ config, ... }: {
+          # 传递 agenix 包
+          _module.args.agenixPackage = agenix.packages.${config.nixpkgs.system}.default;
+        })
           #nixvim.nixosModules.nixvim
           (if builtins.elem hostName ["aozorawings" "AozoraWings-GTX1660" "server"] then 
             inputs.minegrub-theme.nixosModules.default 
