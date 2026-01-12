@@ -19,20 +19,20 @@ let
 
 niriConfig = builtins.readFile ./niri-config.kdl;
 waybarConfig = builtins.readFile ./waybar-config;
-  fixedBitwarden = pkgs.bitwarden-desktop.overrideAttrs (finalAttrs: prevAttrs: {
-    installPhase = prevAttrs.installPhase + ''
-      # 重新创建包装脚本，直接设置 Wayland 参数
-      rm -f "$out/bin/bitwarden"
-      makeWrapper '${lib.getExe pkgs.electron_37}' "$out/bin/bitwarden" \
-        --add-flags $out/opt/Bitwarden/resources/app.asar \
-        --add-flags "--ozone-platform-hint=auto" \
-        --add-flags "--enable-features=WaylandWindowDecorations" \
-        --set ELECTRON_OZONE_PLATFORM_HINT wayland \
-        --set NIXOS_OZONE_WL 1 \
-        --set-default ELECTRON_IS_DEV 0 \
-        --inherit-argv0
-    '';
-  });
+  # fixedBitwarden = pkgs.bitwarden-desktop.overrideAttrs (finalAttrs: prevAttrs: {
+  #   installPhase = prevAttrs.installPhase + ''
+  #     # 重新创建包装脚本，直接设置 Wayland 参数
+  #     rm -f "$out/bin/bitwarden"
+  #     makeWrapper '${lib.getExe pkgs.electron_37}' "$out/bin/bitwarden" \
+  #       --add-flags $out/opt/Bitwarden/resources/app.asar \
+  #       --add-flags "--ozone-platform-hint=auto" \
+  #       --add-flags "--enable-features=WaylandWindowDecorations" \
+  #       --set ELECTRON_OZONE_PLATFORM_HINT wayland \
+  #       --set NIXOS_OZONE_WL 1 \
+  #       --set-default ELECTRON_IS_DEV 0 \
+  #       --inherit-argv0
+  #   '';
+  # });
 
 in
 {
@@ -67,8 +67,8 @@ in
     gawk
     zstd
     kdePackages.kleopatra
-    fixedBitwarden
-
+    #fixedBitwarden
+    bitwarden-desktop
     # networking tools
     mtr # A network diagnostic tool
     iperf3
