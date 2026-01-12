@@ -3,11 +3,13 @@
 
 let
   inherit (lib) mkIf mkOption types;
-  
+  hasDecryptedSecret = builtins.pathExists "/run/agenix/azure-token";
   # 检查是否有启用的 DNS 记录配置
-  anyDnsEnabled = lib.any 
-    (cfg: cfg.enable && cfg.setDnsRecord.enable) 
-    (lib.attrValues config.myWebsites);
+  anyDnsEnabled = 
+    hasDecryptedSecret &&  # 先检查密钥存在
+    lib.any 
+      (cfg: cfg.enable && cfg.setDnsRecord.enable) 
+      (lib.attrValues config.myWebsites);
 
   # 为每个需要 DNS 记录的网站创建 systemd 服务
   dnsServices = lib.mapAttrs' 
