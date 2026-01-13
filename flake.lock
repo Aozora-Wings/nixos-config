@@ -22,6 +22,22 @@
         "type": "github"
       }
     },
+    "LxgwWenKai-font": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1768145749,
+        "narHash": "sha256-t48uJPZe2xz45pIXD6U4rMGrjVKBnyRb1Qvpiw7EzDQ=",
+        "owner": "lxgw",
+        "repo": "LxgwWenKai",
+        "rev": "5f9b2d37fb026fc452488a23b2cd8e509d05a3d6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "lxgw",
+        "repo": "LxgwWenKai",
+        "type": "github"
+      }
+    },
     "agenix": {
       "inputs": {
         "darwin": "darwin",
@@ -551,6 +567,7 @@
     "root": {
       "inputs": {
         "CookNixvim": "CookNixvim",
+        "LxgwWenKai-font": "LxgwWenKai-font",
         "agenix": "agenix",
         "catppuccin-bat": "catppuccin-bat",
         "connecttool-qt": "connecttool-qt",
