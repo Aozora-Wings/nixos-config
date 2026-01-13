@@ -1,5 +1,6 @@
 # config.nix
 let def_ports = import ./def_ports.nix; in {
+  #仓库目录用于nh的执行（nhsw）
   root = "/Developer/nixos-config";
   def_ports = import ./def_ports.nix;
   username = "wt";
