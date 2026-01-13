@@ -51,6 +51,10 @@
       url = "github:Aozora-Wings/wechat-linux-monitor";
       flake = false;
     };
+    LxgwWenKai-font = {
+      url = "github:lxgw/LxgwWenKai";
+      flake = false;
+    };
     CookNixvim = {
     url = "github:Youthdreamer/CookNixvim";
     # If you are not running an unstable channel of nixpkgs, select the corresponding branch of Nixvim.
@@ -70,6 +74,7 @@
     , mySoftware
     , wechat-monitor
     , CookNixvim
+    , LxgwWenKai-font
     , ...
     }:
     let
@@ -130,7 +135,7 @@
       # 定义要传递的共享参数
       sharedArgs = {
         inherit install-config unstable stable MySecrets flakeSoftware hyprlandConfigPath;
-        inherit inputs secrets_file mySoftware parseConfigFile wechat-monitor;
+        inherit inputs secrets_file mySoftware parseConfigFile wechat-monitor LxgwWenKai-font;
       };
 
       # 为所有系统定义 formatter

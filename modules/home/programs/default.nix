@@ -8,7 +8,7 @@
     ./game
     ./my_use_update
     #./template_new_app 
-    ./font.nix
+    ./fonts
     ./desktop.nix
     ./hyper.nix
     ./niri.nix
