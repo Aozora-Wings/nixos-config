@@ -12,7 +12,7 @@ let
 
 in
 {
-  imports = [ ./service ];
+  # imports = [ ./service ];
   services = {
     code-server = {
       enable = true;

@@ -6,7 +6,7 @@ let def_ports = import ./def_ports.nix; in {
   username = "wt";
   hostname = "aozorawings";
   useremail = "wt@qkzy.net";
-  # hardwarefiles = "/etc/nixos/hardware-configuration.nix";
+  hardwarefiles = "/etc/nixos/hardware-configuration.nix";
   openssh.publicKey = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBet/ZjyZr+kd/s6n19qchrG8KRh/Cn5POw61ARtzjMQ cardno:30_648_554"
     "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC4CbVAFZzd88MZkmGV6n/AJNBYrlluiVGKq8zCtH9hUJBhpu5b5gotVU92saYGZQaOs+nMYneBdn67MZqW9oFsIboPNvpKSPEUyPIATi9z+zRVKZ0GwLTEJbU72WIXoY0Q7f7Jb5iOB2cW7G/DX8fo9YmVGr/5KgEICQoz+AYUdLfziZn2fZVDouaQUXuIClSY+lDWIOGJmkk/1PE4dhOtG9oWku6E8IZXkWgVlxxzy2JeS5YaVGl2cI4bD75S1G/cZ46QaWahii9Lf+6ieLoS74i+dCmg5d4EnvULUGheHMtJYpYcKujA3/FOSTkD0aTuUKNrhvU6tE325SIRDSdH cardno:30_648_554"

@@ -186,7 +186,43 @@
         ] ++ extraModules;
       };
 
+      mkServerConfig = hostName: system: extraModules: nixpkgs.lib.nixosSystem {
+  system = "x86_64-linux";
+  specialArgs = sharedArgs // { inherit hostName; };
+  modules = [
+    agenix.nixosModules.default
+    ./hosts/server
+
+    # Home Manager 配置
+    home-manager.nixosModules.home-manager
+    ({ config, pkgs, lib, ... }: {
+      # 解决错误的关键配置
+      environment.pathsToLink = [ 
+        "/share/applications" 
+        "/share/xdg-desktop-portal" 
+      ];
+
+      home-manager.backupFileExtension = "backup-$(date +%Y%m%d%H%M%S)";
+      home-manager.useUserPackages = true;
+      home-manager.extraSpecialArgs = sharedArgs // { hostName = "server"; };
+
+      # 简化用户配置，使用固定用户名
+      home-manager.users = {
+        # 使用你的实际用户名，比如 "yourusername"
+        ${install-config.username} = {
+          imports = [ 
+            ./hosts/server/home 
+            agenix.homeManagerModules.default
+          ];
+          _module.args.hostName = "server";
+        };
+      };
+    })
+  ];
+};
+
       # Azure VM 的特殊配置函数（需要特殊处理）
+
       mkAzureVMConfig = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = sharedArgs // { hostName = "azure-vm"; };
@@ -356,7 +392,7 @@
         wsl = mkNixOSConfig "wsl" "x86_64-linux" [];
         aozorawings = mkNixOSConfig "aozorawings" "x86_64-linux" [];
         "AozoraWings-GTX1660" = mkNixOSConfig "AozoraWings-GTX1660" "x86_64-linux" [];
-        server = mkNixOSConfig "server" "x86_64-linux" [];
+        server = mkServerConfig "server" "x86_64-linux" [];
         
         # Azure VM 使用特殊配置函数
         nixos = mkAzureVMConfig;
