@@ -191,7 +191,7 @@
   specialArgs = sharedArgs // { inherit hostName; };
   modules = [
     agenix.nixosModules.default
-    ./hosts/server
+    ./hosts/china-server
 
     # Home Manager 配置
     home-manager.nixosModules.home-manager
