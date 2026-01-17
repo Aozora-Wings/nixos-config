@@ -197,25 +197,22 @@
     home-manager.nixosModules.home-manager
     ({ config, pkgs, lib, ... }: {
       # 解决错误的关键配置
-      environment.pathsToLink = [ 
-        "/share/applications" 
-        "/share/xdg-desktop-portal" 
-      ];
+      # environment.pathsToLink = [ 
+      #   "/share/applications" 
+      #   "/share/xdg-desktop-portal" 
+      # ];
 
       home-manager.backupFileExtension = "backup-$(date +%Y%m%d%H%M%S)";
       home-manager.useUserPackages = true;
       home-manager.extraSpecialArgs = sharedArgs // { hostName = "server"; };
 
       # 简化用户配置，使用固定用户名
-      home-manager.users = {
-        # 使用你的实际用户名，比如 "yourusername"
-        ${install-config.username} = {
+      home-manager.users.${install-config.username} = {
           imports = [ 
-            ./hosts/server/home 
+            ./hosts/china-server/home 
             agenix.homeManagerModules.default
           ];
           _module.args.hostName = "server";
-        };
       };
     })
   ];
