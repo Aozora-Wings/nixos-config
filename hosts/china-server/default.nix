@@ -33,5 +33,6 @@ in
     initialPassword = "12345678";                 # 登录后立即改密码！
   };
 
+  security.sudo.wheelNeedsPassword = false;
   system.stateVersion = "24.05"; # Did you read the comment?
 }
