@@ -10,14 +10,17 @@ let
 
   username = install-config.username;
   hyprlandConfigPath = "${toString ../config/hyprland.conf}";
-  mkAgeConfig = lib.mkIf (builtins.pathExists "/home/${username}/.ssh/vw_wt");
+  
+  keyPath = "/home/${username}/.ssh/vw_wt";
+  enableAge = builtins.pathExists keyPath;
 
 in
 {
-  imports = [
-     ./service
-     (mkAgeConfig ./age-secrets.nix)
-      ];
+imports = [
+  ./service
+] ++ lib.optionals enableAge [
+  ./age-secrets.nix
+];
   services = {
     code-server = {
       enable = true;
